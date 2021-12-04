@@ -9,14 +9,6 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     tmp = cv2.imread( "../data/100/100-Template.jpg", cv2.IMREAD_GRAYSCALE)
     output_img = np.zeros((img.shape[0]-tmp.shape[0]+1, img.shape[1]-tmp.shape[1]+1))
-    print(plot_img.shape)
-    # opencv
-    # w, h = tmp.shape[::-1]
-    # res = cv2.matchTemplate(img,tmp,cv2.TM_CCOEFF_NORMED)
-    # loc = np.where( res >= 0.7)
-    # for pt in zip(*loc[::-1]):
-    #     cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (255,255,255), 2)
-    #show(img)
 
     #opencv rotation
     center = (tmp.shape[1]//2,tmp.shape[0]//2)
@@ -58,6 +50,54 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
         cv2.putText(plot_img, f"Scale:{scale}", (center_x+30, center_y+50), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Angle:{rot}", (center_x+30, center_y+75), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Score:{score:.3f}", (center_x+30, center_y+100), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
+    show(plot_img, "IM")
+
+def matching_die(img_path, thres=0.8, rot=0, scale=1):
+    plot_img = cv2.imread(img_path)
+    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    tmp = cv2.imread( "../data/Die/Die-Template.tif", cv2.IMREAD_GRAYSCALE)
+    output_img = np.zeros((img.shape[0]-tmp.shape[0]+1, img.shape[1]-tmp.shape[1]+1))
+
+    #opencv rotation
+    center = (tmp.shape[1]//2,tmp.shape[0]//2)
+    rot_mat = cv2.getRotationMatrix2D(center, rot, scale)
+    tmp = cv2.warpAffine(tmp, rot_mat, (tmp.shape[1], tmp.shape[0]))
+    #show(tmp)
+    #cv2.circle(tmp, (85,126), 2, (0,0,255), 5, 16)
+    # rot_tmp = np.zeros((tmp.shape[0], tmp.shape[1]))
+    # for i in range(tmp.shape[0]):
+    #     for j in range(tmp.shape[1]):
+    #         x = int(j*np.cos(np.radians(5)) - i*np.sin(np.radians(5)))
+    #         y = int(j*np.sin(np.radians(5)) + i*np.cos(np.radians(5)))
+    #         if x>=rot_tmp.shape[1] or x<0:
+    #             continue
+    #         if y>=rot_tmp.shape[0] or y<0:
+    #             continue
+    #         rot_tmp[y, x] = tmp[i, j]
+    #show(tmp)
+    #show(rot_tmp, "tmp")
+    resize_ratio = 8
+    resize_img = cv2.resize(img, (int(img.shape[1]/resize_ratio), int(img.shape[0]/resize_ratio)))
+    resize_tmp = cv2.resize(tmp, (int(tmp.shape[1]/resize_ratio), int(tmp.shape[0]/resize_ratio)))
+    resize_output = np.zeros((resize_img.shape[0]-resize_tmp.shape[0]+1, resize_img.shape[1]-resize_tmp.shape[1]+1))
+    resize_matching = get_matching_result(resize_img, resize_tmp, resize_output)
+    points = [i for i in zip(np.where(resize_matching>thres))]
+    sim_scores = resize_matching[resize_matching>thres]
+    mapping_origin_points = [i[0]*resize_ratio for i in points]
+
+    # plot bounding box
+    for i in range(len(mapping_origin_points[0])):
+        y = mapping_origin_points[0][i]
+        x = mapping_origin_points[1][i]
+        score = sim_scores[i]
+        center_x, center_y = x+(int(tmp.shape[1]/2)), y+(int(tmp.shape[0]/2))
+        cv2.rectangle(plot_img, (x,y), (x+tmp.shape[1], y+tmp.shape[0]), (0,0,255), 1)
+        cv2.circle(plot_img, (center_x, center_y), 1, (0,255,255), 5, 16)
+        cv2.putText(plot_img, f"X:{center_x}", (center_x+10, center_y), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(plot_img, f"Y:{center_y}", (center_x+10, center_y+15), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(plot_img, f"Scale:{scale}", (center_x+10, center_y+30), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(plot_img, f"Angle:{rot}", (center_x+10, center_y+45), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(plot_img, f"Score:{score:.3f}", (center_x+10, center_y+60), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
     show(plot_img, "IM")
 
 def get_matching_result(img, tmp, output_img):
@@ -104,3 +144,7 @@ if __name__=="__main__":
     matching_100("../data/100/100-2.jpg", thres=0.4, rot=1, scale=1.1)
     matching_100("../data/100/100-3.jpg")
     matching_100("../data/100/100-4.jpg")
+
+    #matching_die("../data/Die/Die1.tif", thres=0.66,rot=0, scale=1.08)
+    matching_die("../data/Die/Die1.tif", thres=0.818,rot=1, scale=1)
+    matching_die("../data/Die/Die2.tif", thres=0.75, rot=-2, scale=1)
