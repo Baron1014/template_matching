@@ -10,27 +10,15 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
     tmp = cv2.imread( "../data/100/100-Template.jpg", cv2.IMREAD_GRAYSCALE)
     output_img = np.zeros((img.shape[0]-tmp.shape[0]+1, img.shape[1]-tmp.shape[1]+1))
 
-    #opencv rotation
-    center = (tmp.shape[1]//2,tmp.shape[0]//2)
-    rot_mat = cv2.getRotationMatrix2D(center, rot, scale)
-    tmp = cv2.warpAffine(tmp, rot_mat, (tmp.shape[1], tmp.shape[0]))
-    #show(tmp)
-    #cv2.circle(tmp, (85,126), 2, (0,0,255), 5, 16)
-    # rot_tmp = np.zeros((tmp.shape[0], tmp.shape[1]))
-    # for i in range(tmp.shape[0]):
-    #     for j in range(tmp.shape[1]):
-    #         x = int(j*np.cos(np.radians(5)) - i*np.sin(np.radians(5)))
-    #         y = int(j*np.sin(np.radians(5)) + i*np.cos(np.radians(5)))
-    #         if x>=rot_tmp.shape[1] or x<0:
-    #             continue
-    #         if y>=rot_tmp.shape[0] or y<0:
-    #             continue
-    #         rot_tmp[y, x] = tmp[i, j]
-    #show(tmp)
-    #show(rot_tmp, "tmp")
+    # Template Rotation
+    tmp = rot_image(tmp, rot, scale)
+
+    # Pyramid Down
     resize_ratio = 16
     resize_img = cv2.resize(img, (int(img.shape[1]/resize_ratio), int(img.shape[0]/resize_ratio)))
     resize_tmp = cv2.resize(tmp, (int(tmp.shape[1]/resize_ratio), int(tmp.shape[0]/resize_ratio)))
+    
+    # Texture Matching
     resize_output = np.zeros((resize_img.shape[0]-resize_tmp.shape[0]+1, resize_img.shape[1]-resize_tmp.shape[1]+1))
     resize_matching = get_matching_result(resize_img, resize_tmp, resize_output)
     points = [i for i in zip(np.where(resize_matching>thres))]
@@ -38,7 +26,7 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
     mapping_origin_points = [i[0]*resize_ratio for i in points]
 
     # plot bounding box
-    for i in range(len(mapping_origin_points)):
+    for i in range(len(mapping_origin_points[0])):
         y = mapping_origin_points[0][i]
         x = mapping_origin_points[1][i]
         score = sim_scores[i]
@@ -58,27 +46,15 @@ def matching_die(img_path, thres=0.8, rot=0, scale=1):
     tmp = cv2.imread( "../data/Die/Die-Template.tif", cv2.IMREAD_GRAYSCALE)
     output_img = np.zeros((img.shape[0]-tmp.shape[0]+1, img.shape[1]-tmp.shape[1]+1))
 
-    #opencv rotation
-    center = (tmp.shape[1]//2,tmp.shape[0]//2)
-    rot_mat = cv2.getRotationMatrix2D(center, rot, scale)
-    tmp = cv2.warpAffine(tmp, rot_mat, (tmp.shape[1], tmp.shape[0]))
-    #show(tmp)
-    #cv2.circle(tmp, (85,126), 2, (0,0,255), 5, 16)
-    # rot_tmp = np.zeros((tmp.shape[0], tmp.shape[1]))
-    # for i in range(tmp.shape[0]):
-    #     for j in range(tmp.shape[1]):
-    #         x = int(j*np.cos(np.radians(5)) - i*np.sin(np.radians(5)))
-    #         y = int(j*np.sin(np.radians(5)) + i*np.cos(np.radians(5)))
-    #         if x>=rot_tmp.shape[1] or x<0:
-    #             continue
-    #         if y>=rot_tmp.shape[0] or y<0:
-    #             continue
-    #         rot_tmp[y, x] = tmp[i, j]
-    #show(tmp)
-    #show(rot_tmp, "tmp")
+    # Template Rotation
+    tmp = rot_image(tmp, rot, scale)
+
+    # Pyramid Down
     resize_ratio = 8
     resize_img = cv2.resize(img, (int(img.shape[1]/resize_ratio), int(img.shape[0]/resize_ratio)))
     resize_tmp = cv2.resize(tmp, (int(tmp.shape[1]/resize_ratio), int(tmp.shape[0]/resize_ratio)))
+
+    # Texture Matching
     resize_output = np.zeros((resize_img.shape[0]-resize_tmp.shape[0]+1, resize_img.shape[1]-resize_tmp.shape[1]+1))
     resize_matching = get_matching_result(resize_img, resize_tmp, resize_output)
     points = [i for i in zip(np.where(resize_matching>thres))]
@@ -119,7 +95,6 @@ def get_matching_result(img, tmp, output_img):
                     norm_tmp += np.power(t, 2)
                     norm_img += np.power(im, 2)
             output_img[i, j]= (inner)/np.sqrt(norm_img*norm_tmp)
-    show(output_img)
     return output_img
 
 
@@ -139,12 +114,32 @@ def angle(edge):
 
     return 
 
+def rot_image(img, rot=0, scale=1):
+    s = 1 + (1-scale)
+    rot_img = np.zeros((img.shape[0], img.shape[1])).astype(np.uint8)
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            adjust_i = i - (img.shape[0]//2)
+            adjust_j = j - (img.shape[1]//2)
+            x = int(s*(adjust_j*np.cos(np.radians(rot)) - adjust_i*np.sin(np.radians(rot))))
+            y = int(s*(adjust_j*np.sin(np.radians(rot)) + adjust_i*np.cos(np.radians(rot))))
+            re_x = x + (img.shape[1]//2)
+            re_y = y + (img.shape[0]//2)
+            if 0 <= re_x < img.shape[1]:
+                if 0 <= re_y < img.shape[0]:
+                    rot_img[i, j] = img[re_y, re_x]
+                else:
+                    rot_img[i, j] = 0
+            else:
+                rot_img[i, j] = 0
+
+    return rot_img
+
 if __name__=="__main__":
     matching_100("../data/100/100-1.jpg")
-    matching_100("../data/100/100-2.jpg", thres=0.4, rot=1, scale=1.1)
+    matching_100("../data/100/100-2.jpg", thres=0.4, rot=1)
     matching_100("../data/100/100-3.jpg")
     matching_100("../data/100/100-4.jpg")
 
-    #matching_die("../data/Die/Die1.tif", thres=0.66,rot=0, scale=1.08)
-    matching_die("../data/Die/Die1.tif", thres=0.818,rot=1, scale=1)
-    matching_die("../data/Die/Die2.tif", thres=0.75, rot=-2, scale=1)
+    matching_die("../data/Die/Die1.tif", thres=0.79, rot=2)
+    matching_die("../data/Die/Die2.tif", thres=0.747, rot=-2)
