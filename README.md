@@ -98,12 +98,10 @@ def get_matching_result(img, tmp, output_img):
 最後利用opencv.rectangle()等視覺化工具將結果進行輸出，得到成功辨識後的影像結果。
 - 100
     - cost time
-        |  Data |   time    |
-        | :---: |   :---:   |
-        | 100-1 |   0:00:04 |
-        | 100-2 |   0:00:04 |
-        | 100-3 |   0:00:04 |
-        | 100-4 |   0:00:04 |
+        |  Data |   time    | Data |   time    |
+        | :---: |   :---:   | :---: |   :---:   |
+        | 100-1 |   0:00:04 | 100-2 |   0:00:04 |
+        | 100-3 |   0:00:04 | 100-4 |   0:00:04 |
 
 <p float="left">
      <img src="data/100/100-1_matching.jpg" width=400/> <img src="data/100/100-2_matching.jpg" width=400/>
@@ -112,10 +110,10 @@ def get_matching_result(img, tmp, output_img):
 
 - Die
     - cost time
-        |  Data |   time    |
-        | :---: |   :---:   |
-        | Die-1 |   0:00:06 |
-        | Die-2 |   0:00:06 |
+        |  Data |   time    | Data |   time    |
+        | :---: |   :---:   | :---: |   :---:   |
+        | Die-1 |   0:00:06 | Die-2 |   0:00:06 |
+
         
 <p float="left">
      <img src="data/Die/Die1_matching.jpg" width=400/> <img src="data/Die/Die2_matching.jpg" width=400/>
