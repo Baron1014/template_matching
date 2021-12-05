@@ -3,13 +3,17 @@ import math
 import numpy as np
 from numpy.core.fromnumeric import shape
 from tqdm import tqdm
+from datetime import datetime
 
 def matching_100(img_path, thres=0.5, rot=0, scale=1):
+    file_name = img_path.split('/')[-1].replace(".jpg", "")
+    start = datetime.now()
+
+    # read image & template
     plot_img = cv2.imread(img_path)
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     tmp = cv2.imread( "../data/100/100-Template.jpg", cv2.IMREAD_GRAYSCALE)
-    output_img = np.zeros((img.shape[0]-tmp.shape[0]+1, img.shape[1]-tmp.shape[1]+1))
-
+    
     # Template Rotation
     tmp = rot_image(tmp, rot, scale)
 
@@ -21,6 +25,9 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
     # Texture Matching
     resize_output = np.zeros((resize_img.shape[0]-resize_tmp.shape[0]+1, resize_img.shape[1]-resize_tmp.shape[1]+1))
     resize_matching = get_matching_result(resize_img, resize_tmp, resize_output)
+    print(f"{img_path.split('/')[-1]} doing Texture Matching cost: {datetime.now()-start}")
+    
+    # set threshold and get origin points
     points = [i for i in zip(np.where(resize_matching>thres))]
     sim_scores = resize_matching[resize_matching>thres]
     mapping_origin_points = [i[0]*resize_ratio for i in points]
@@ -38,14 +45,18 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
         cv2.putText(plot_img, f"Scale:{scale}", (center_x+30, center_y+50), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Angle:{rot}", (center_x+30, center_y+75), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Score:{score:.3f}", (center_x+30, center_y+100), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
-    show(plot_img, "IM")
+    show(plot_img, "Image")
+    save_image(plot_img, file_name + "_matching", "../data/100/")
 
 def matching_die(img_path, thres=0.8, rot=0, scale=1):
+    file_name = img_path.split('/')[-1].replace(".jpg", "")
+    start = datetime.now()
+
+    # read image & template
     plot_img = cv2.imread(img_path)
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     tmp = cv2.imread( "../data/Die/Die-Template.tif", cv2.IMREAD_GRAYSCALE)
-    output_img = np.zeros((img.shape[0]-tmp.shape[0]+1, img.shape[1]-tmp.shape[1]+1))
-
+    
     # Template Rotation
     tmp = rot_image(tmp, rot, scale)
 
@@ -57,6 +68,9 @@ def matching_die(img_path, thres=0.8, rot=0, scale=1):
     # Texture Matching
     resize_output = np.zeros((resize_img.shape[0]-resize_tmp.shape[0]+1, resize_img.shape[1]-resize_tmp.shape[1]+1))
     resize_matching = get_matching_result(resize_img, resize_tmp, resize_output)
+    print(f"{img_path.split('/')[-1]} doing Texture Matching cost: {datetime.now()-start}")
+    
+    # set threshold and get origin points
     points = [i for i in zip(np.where(resize_matching>thres))]
     sim_scores = resize_matching[resize_matching>thres]
     mapping_origin_points = [i[0]*resize_ratio for i in points]
@@ -74,7 +88,8 @@ def matching_die(img_path, thres=0.8, rot=0, scale=1):
         cv2.putText(plot_img, f"Scale:{scale}", (center_x+10, center_y+30), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Angle:{rot}", (center_x+10, center_y+45), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Score:{score:.3f}", (center_x+10, center_y+60), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
-    show(plot_img, "IM")
+    show(plot_img, "Image")
+    save_image(plot_img, file_name + "_matching", "../data/Die/")
 
 def get_matching_result(img, tmp, output_img):
     tmp_u = np.mean(tmp)
@@ -134,6 +149,9 @@ def rot_image(img, rot=0, scale=1):
                 rot_img[i, j] = 0
 
     return rot_img
+
+def save_image(fig, figname, report_path):
+    cv2.imwrite(f'{report_path}/{figname}.jpg', fig)
 
 if __name__=="__main__":
     matching_100("../data/100/100-1.jpg")
