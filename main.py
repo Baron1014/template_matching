@@ -49,7 +49,7 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
     save_image(plot_img, file_name + "_matching", "../data/100/")
 
 def matching_die(img_path, thres=0.8, rot=0, scale=1):
-    file_name = img_path.split('/')[-1].replace(".jpg", "")
+    file_name = img_path.split('/')[-1].replace(".tif", "")
     start = datetime.now()
 
     # read image & template
