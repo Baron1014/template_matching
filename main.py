@@ -12,8 +12,8 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
     # read image & template
     plot_img = cv2.imread(img_path)
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-    tmp = cv2.imread( "../data/100/100-Template.jpg", cv2.IMREAD_GRAYSCALE)
-    
+    tmp = cv2.imread( "data/100/100-Template.jpg", cv2.IMREAD_GRAYSCALE)
+
     # Template Rotation
     tmp = rot_image(tmp, rot, scale)
 
@@ -55,7 +55,7 @@ def matching_die(img_path, thres=0.8, rot=0, scale=1):
     # read image & template
     plot_img = cv2.imread(img_path)
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-    tmp = cv2.imread( "../data/Die/Die-Template.tif", cv2.IMREAD_GRAYSCALE)
+    tmp = cv2.imread( "data/Die/Die-Template.tif", cv2.IMREAD_GRAYSCALE)
     
     # Template Rotation
     tmp = rot_image(tmp, rot, scale)
@@ -89,7 +89,7 @@ def matching_die(img_path, thres=0.8, rot=0, scale=1):
         cv2.putText(plot_img, f"Angle:{rot}", (center_x+10, center_y+45), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Score:{score:.3f}", (center_x+10, center_y+60), cv2.FONT_HERSHEY_DUPLEX, 0.3, (0, 255, 255), 1, cv2.LINE_AA)
     show(plot_img, "Image")
-    save_image(plot_img, file_name + "_matching", "../data/Die/")
+    save_image(plot_img, file_name + "_matching", "data/Die/")
 
 def get_matching_result(img, tmp, output_img):
     tmp_u = np.mean(tmp)
@@ -154,10 +154,10 @@ def save_image(fig, figname, report_path):
     cv2.imwrite(f'{report_path}/{figname}.jpg', fig)
 
 if __name__=="__main__":
-    matching_100("../data/100/100-1.jpg")
-    matching_100("../data/100/100-2.jpg", thres=0.4, rot=1)
-    matching_100("../data/100/100-3.jpg")
-    matching_100("../data/100/100-4.jpg")
+    matching_100("data/100/100-1.jpg")
+    matching_100("data/100/100-2.jpg", thres=0.4, rot=1)
+    matching_100("data/100/100-3.jpg")
+    matching_100("data/100/100-4.jpg")
 
-    matching_die("../data/Die/Die1.tif", thres=0.79, rot=2)
-    matching_die("../data/Die/Die2.tif", thres=0.747, rot=-2)
+    matching_die("data/Die/Die1.tif", thres=0.79, rot=2)
+    matching_die("data/Die/Die2.tif", thres=0.747, rot=-2)
