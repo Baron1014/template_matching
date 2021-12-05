@@ -5,7 +5,7 @@ from numpy.core.fromnumeric import shape
 from tqdm import tqdm
 from datetime import datetime
 
-def matching_100(img_path, thres=0.5, rot=0, scale=1):
+def matching_100(img_path, thres=0.5, rot=0, scale=1, method=None):
     file_name = img_path.split('/')[-1].replace(".jpg", "")
     start = datetime.now()
 
@@ -17,20 +17,26 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
     # Template Rotation
     tmp = rot_image(tmp, rot, scale)
 
-    # Pyramid Down
-    resize_ratio = 16
-    resize_img = cv2.resize(img, (int(img.shape[1]/resize_ratio), int(img.shape[0]/resize_ratio)))
-    resize_tmp = cv2.resize(tmp, (int(tmp.shape[1]/resize_ratio), int(tmp.shape[0]/resize_ratio)))
+    if method=="opencv":
+        res = cv2.matchTemplate(img,tmp,cv2.TM_CCOEFF_NORMED)
+        mapping_origin_points = [i[0] for i in zip(np.where(res>thres))]
+        sim_scores = res[res>thres]
+        print(f"{img_path.split('/')[-1]} doing Texture Matching with OpenCV cost: {datetime.now()-start}")
+    else:
+        # Pyramid Down
+        resize_ratio = 16
+        resize_img = cv2.resize(img, (int(img.shape[1]/resize_ratio), int(img.shape[0]/resize_ratio)))
+        resize_tmp = cv2.resize(tmp, (int(tmp.shape[1]/resize_ratio), int(tmp.shape[0]/resize_ratio)))
+        
+        # Texture Matching
+        resize_output = np.zeros((resize_img.shape[0]-resize_tmp.shape[0]+1, resize_img.shape[1]-resize_tmp.shape[1]+1))
+        resize_matching = get_matching_result(resize_img, resize_tmp, resize_output)
+        print(f"{img_path.split('/')[-1]} doing Texture Matching cost: {datetime.now()-start}")
     
-    # Texture Matching
-    resize_output = np.zeros((resize_img.shape[0]-resize_tmp.shape[0]+1, resize_img.shape[1]-resize_tmp.shape[1]+1))
-    resize_matching = get_matching_result(resize_img, resize_tmp, resize_output)
-    print(f"{img_path.split('/')[-1]} doing Texture Matching cost: {datetime.now()-start}")
-    
-    # set threshold and get origin points
-    points = [i for i in zip(np.where(resize_matching>thres))]
-    sim_scores = resize_matching[resize_matching>thres]
-    mapping_origin_points = [i[0]*resize_ratio for i in points]
+        # set threshold and get origin points
+        points = [i for i in zip(np.where(resize_matching>thres))]
+        sim_scores = resize_matching[resize_matching>thres]
+        mapping_origin_points = [i[0]*resize_ratio for i in points]
 
     # plot bounding box
     for i in range(len(mapping_origin_points[0])):
@@ -38,7 +44,7 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
         x = mapping_origin_points[1][i]
         score = sim_scores[i]
         center_x, center_y = x+(int(tmp.shape[1]/2)), y+(int(tmp.shape[0]/2))
-        cv2.rectangle(plot_img, (x,y), (x+tmp.shape[1], y+tmp.shape[0]), (0,0,255), 4)
+        cv2.rectangle(plot_img, (x,y), (x+tmp.shape[1], y+tmp.shape[0]), (255,0,0) if method=="opencv" else (0,0,255) , 4)
         cv2.circle(plot_img, (center_x, center_y), 1, (0,255,255), 5, 16)
         cv2.putText(plot_img, f"X:{center_x}", (center_x+30, center_y), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Y:{center_y}", (center_x+30, center_y+25), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
@@ -46,7 +52,7 @@ def matching_100(img_path, thres=0.5, rot=0, scale=1):
         cv2.putText(plot_img, f"Angle:{rot}", (center_x+30, center_y+75), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(plot_img, f"Score:{score:.3f}", (center_x+30, center_y+100), cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
     show(plot_img, "Image")
-    save_image(plot_img, file_name + "_matching", "../data/100/")
+    save_image(plot_img, file_name + f"_matching{f'_{method}' if method is not None else str()}", "data/100/")
 
 def matching_die(img_path, thres=0.8, rot=0, scale=1):
     file_name = img_path.split('/')[-1].replace(".tif", "")
@@ -154,6 +160,7 @@ def save_image(fig, figname, report_path):
     cv2.imwrite(f'{report_path}/{figname}.jpg', fig)
 
 if __name__=="__main__":
+    matching_100("data/100/100-1.jpg", thres=0.95, method="opencv")
     matching_100("data/100/100-1.jpg")
     matching_100("data/100/100-2.jpg", thres=0.4, rot=1)
     matching_100("data/100/100-3.jpg")
