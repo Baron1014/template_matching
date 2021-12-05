@@ -2,7 +2,7 @@
 
 ## 目錄
 - [讀取檔案](#讀取檔案)
-- [調整模板影像](#調整影像)
+- [調整模板影像](#調整模板影像)
 - [縮小影像](#縮小影像)
 - [計算相似度](#計算相似度)
 - [定義閾值](#定義閾值)
@@ -20,11 +20,11 @@
     | Data  | scale | angle |
     | :---: | :---: | :---: |
     | 100-1 |   X   |   X   |  
-    | 100-2 |   X   |   $1{\degree}$   |  
+    | 100-2 |   X   |   1°  |  
     | 100-3 |   X   |   X   |  
     | 100-4 |   X   |   X   |  
-    | Die-1 |   X   |   $2{\degree}$   |  
-    | Die-2 |   X   |   $-2{\degree}$   |  
+    | Die-1 |   X   |   2°  |  
+    | Die-2 |   X   |   -2° |  
 
 
 ```python
@@ -58,7 +58,7 @@ def rot_image(img, rot=0, scale=1):
 | Die |  8 |
 
 ## 計算相似度
-此次專案利用Texture Matching中Normalized Correlation Coeffiecient(NCC)來計算特徵相似度。
+此次專案利用Texture Matching中 **Normalized Correlation Coeffiecient(NCC)** 來計算特徵相似度。
 ```python
 def get_matching_result(img, tmp, output_img):
     tmp_u = np.mean(tmp)
@@ -98,8 +98,8 @@ def get_matching_result(img, tmp, output_img):
 最後利用opencv.rectangle()等視覺化工具將結果進行輸出，得到成功辨識後的影像結果。
 - 100
 <p float="left">
-     <img src="data/100/100-1.jpg"/> <img src="data/100/100-2.jpg"/>
-     <img src="data/100/100-3.jpg" /> <img src="data/100/100-4.jpg"/>
+     <img src="data/100/100-1_matching.jpg" width=450/> <img src="data/100/100-2_matching.jpg" width=450/>
+     <img src="data/100/100-3_matching.jpg" width=450/> <img src="data/100/100-4_matching.jpg" width=450/>
 </p>
 - Die
 <p float="left">
