@@ -29,26 +29,7 @@
 
 
 ```python
-def rot_image(img, rot=0, scale=1):
-    s = 1 + (1-scale)
-    rot_img = np.zeros((img.shape[0], img.shape[1])).astype(np.uint8)
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            adjust_i = i - (img.shape[0]//2)
-            adjust_j = j - (img.shape[1]//2)
-            x = int(s*(adjust_j*np.cos(np.radians(rot)) - adjust_i*np.sin(np.radians(rot))))
-            y = int(s*(adjust_j*np.sin(np.radians(rot)) + adjust_i*np.cos(np.radians(rot))))
-            re_x = x + (img.shape[1]//2)
-            re_y = y + (img.shape[0]//2)
-            if 0 <= re_x < img.shape[1]:
-                if 0 <= re_y < img.shape[0]:
-                    rot_img[i, j] = img[re_y, re_x]
-                else:
-                    rot_img[i, j] = 0
-            else:
-                rot_img[i, j] = 0
-
-    return rot_img
+rot_image(img, rot=0, scale=1):
 ```
 
 ## 縮小影像
