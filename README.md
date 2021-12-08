@@ -70,9 +70,9 @@ get_matching_result(img, tmp, output_img):
         |  Data | My method | OpenCV |
         | :---: |   :---:   | :---:  |
         | 100-1 |   593.04  | 0.42   |
-        | 100-2 |   0:00:04 | 0.41   |
-        | 100-3 |   0:00:04 | 0.40   |
-        | 100-4 |   0:00:04 | 0.40   |
+        | 100-2 |   595.29 | 0.41   |
+        | 100-3 |   588.19 | 0.40   |
+        | 100-4 |   591.19 | 0.40   |
         
 
 <p float="left">
@@ -87,8 +87,8 @@ get_matching_result(img, tmp, output_img):
     - cost time
         |  Data | My method | OpenCV |
         | :---: |   :---:   | :---:  |
-        | Die-1 |   0:00:06 | 0:00:00|
-        | Die-2 |   0:00:06 | 0:00:00|
+        | Die-1 |   204.11  |   0.39 |
+        | Die-2 |   205.34  | 0.34   |
 
         
 <p float="left">
