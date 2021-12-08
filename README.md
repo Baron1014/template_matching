@@ -4,6 +4,7 @@
 - [讀取檔案](#讀取檔案)
 - [調整模板影像](#調整模板影像)
 - [縮小影像](#縮小影像)
+- [小範圍計算](#小範圍計算)
 - [計算相似度](#計算相似度)
 - [定義閾值](#定義閾值)
 - [結果視覺化](#結果視覺化)
@@ -57,29 +58,16 @@ def rot_image(img, rot=0, scale=1):
 | 100 |  16 |
 | Die |  8 |
 
+## 小範圍計算
+當我們在降維的影像中找到相似度較高的數值時，需還原為原本影像的大小進行小範圍計算相似度。因還原影像本身存在著誤差，故搜索範圍此設計為按照所縮小倍數進行設定。
+```python
+get_small_matching_result(img, tmp, points, resize_ratio=8)
+```
+
 ## 計算相似度
 此次專案利用Texture Matching中 **Normalized Correlation Coeffiecient(NCC)** 來計算特徵相似度。
 ```python
-def get_matching_result(img, tmp, output_img):
-    tmp_u = np.mean(tmp)
-    for i in tqdm(range(output_img.shape[0])):
-        for j in range(output_img.shape[1]):
-            #tmplate
-            inner = 0
-            norm_tmp = 0
-            norm_img = 0
-            # 計算符合template大小的原始影像平均值
-            img_sum = [img[i+ti,j+tj] for ti in range(tmp.shape[0]) for tj in range(tmp.shape[1])]
-            img_u = np.mean(img_sum)
-            for ti in range(tmp.shape[0]):
-                for tj in range(tmp.shape[1]):
-                    t = tmp[ti, tj] - tmp_u
-                    im = img[i+ti,j+tj] - img_u
-                    inner += t*im 
-                    norm_tmp += np.power(t, 2)
-                    norm_img += np.power(im, 2)
-            output_img[i, j]= (inner)/np.sqrt(norm_img*norm_tmp)
-    return output_img
+get_matching_result(img, tmp, output_img):
 ```
 
 ## 定義閾值
@@ -97,24 +85,32 @@ def get_matching_result(img, tmp, output_img):
 ## 結果視覺化
 最後利用opencv.rectangle()等視覺化工具將結果進行輸出，得到成功辨識後的影像結果。
 - 100
-    - cost time
-        |  Data | My method | OpenCV | Data | My method | OpenCV |
-        | :---: |   :---:   | :---:  |:---: |   :---:   | :---:  |
-        | 100-1 |   0:00:04 | 0:00:00|100-2 |   0:00:04 | 0:00:00|
-        | 100-3 |   0:00:04 | 0:00:00|100-4 |   0:00:04 | 0:00:00|
+    - cost time(s)
+        |  Data | My method | OpenCV |
+        | :---: |   :---:   | :---:  |
+        | 100-1 |   593.04  | 0.42   |
+        | 100-2 |   0:00:04 | 0.41   |
+        | 100-3 |   0:00:04 | 0.40   |
+        | 100-4 |   0:00:04 | 0.40   |
+        
 
 <p float="left">
-     <img src="data/100/100-1_matching.jpg" width=400/> <img src="data/100/100-2_matching.jpg" width=400/>
-     <img src="data/100/100-3_matching.jpg" width=400/> <img src="data/100/100-4_matching.jpg" width=400/>
+     <img src="data/100/100-1_matching.jpg" width=400/> <img src="data/100/100-1_matching_opencv.jpg" width=400/>
+     <img src="data/100/100-2_matching.jpg" width=400/> <img src="data/100/100-2_matching_opencv.jpg" width=400/>
+     <img src="data/100/100-3_matching.jpg" width=400/> <img src="data/100/100-3_matching_opencv.jpg" width=400/>
+     <img src="data/100/100-4_matching.jpg" width=400/> <img src="data/100/100-4_matching_opencv.jpg" width=400/>
 </p>
+
 
 - Die
     - cost time
-        |  Data | My method | OpenCV | Data |  My method | OpenCV |
-        | :---: |   :---:   | :---:  |:---: |   :---:    | :---:  |
-        | Die-1 |   0:00:06 | 0:00:00|Die-2 |   0:00:06  | 0:00:00|
+        |  Data | My method | OpenCV |
+        | :---: |   :---:   | :---:  |
+        | Die-1 |   0:00:06 | 0:00:00|
+        | Die-2 |   0:00:06 | 0:00:00|
 
         
 <p float="left">
-     <img src="data/Die/Die1_matching.jpg" width=400/> <img src="data/Die/Die2_matching.jpg" width=400/>
+     <img src="data/Die/Die1_matching.jpg" width=400/> <img src="data/Die/Die1_matching_opencv.jpg" width=400/>
+     <img src="data/Die/Die2_matching.jpg" width=400/> <img src="data/Die/Die2_matching_opencv.jpg" width=400/>
 </p>
