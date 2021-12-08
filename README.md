@@ -84,7 +84,7 @@ get_matching_result(img, tmp, output_img):
 
 
 - Die
-    - cost time
+    - cost time(s)
         |  Data | My method | OpenCV |
         | :---: |   :---:   | :---:  |
         | Die-1 |   204.11  |   0.39 |
