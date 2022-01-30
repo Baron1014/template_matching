@@ -1,23 +1,24 @@
-# Template Matching
-
-## 目錄
-- [讀取檔案](#讀取檔案)
-- [調整模板影像](#調整模板影像)
-- [縮小影像](#縮小影像)
-- [小範圍計算](#小範圍計算)
-- [計算相似度](#計算相似度)
-- [定義閾值](#定義閾值)
-- [結果視覺化](#結果視覺化)
+## Content
+- [Read File](#read-file)
+- [Adjust template image](#adjust-template-image)
+- [zoom-out](#zoom-out)
+- [small-scale calculations](#small-scale-calculations)
+- [Calculate similarity](#Calculate-similarity)
+- [Define Threshold](#Define-Threshold)
+- [Visualize](#Visualize)
 ---
-## 讀取檔案
-利用cv2.imread()讀取影像，此時會讀取三種類型影像。
-- 彩色目標影像
-- 灰階目標影像
-- 灰階模板影像
+## Project Description
+The purpose of this project is to find the template location from the original image, is called Tempalte Matching. In order to speed up the code, the Pyramid Down method will be used.
 
-## 調整模板影像
-因不同的目標影像可能與初始模板影像相似度較低，有可能的原因是存在著角度偏移或影像大小不同所導致，因此`rot_image(image, rotation, scale)`是使影像進行旋轉及縮放。
-- 各影像的旋轉及放大處理
+## Read File
+There are three types of images read through `cv2.imread()`.
+- the target image of color
+- the target image of gray
+- the template image of gray
+
+## Adjust template image
+Different target images may not be very similar to the initial template image, possibly due to angular offsets or different image sizes. So `rot_image(image, rotation, scale)` is to rotate and scale the image.
+- Rotation and magnification of each image
     | Data  | scale | angle |
     | :---: | :---: | :---: |
     | 100-1 |   X   |   X   |  
@@ -32,28 +33,28 @@
 rot_image(img, rot=0, scale=1):
 ```
 
-## 縮小影像
-由於原始模板影像進行multi-sum所耗費時間過長且如此較沒效率，因此透過Pyramid Down將目標影像及模板影像同時縮小，可以大幅縮短萃取特徵所花費的時間。
-|Data |縮小倍率|
+## zoom-out
+Since the multiple summation of the original template image takes too long and is inefficient, reducing the target image and the template image at the same time through Pyramid Down can greatly shorten the time spent in extracting features.
+|Data |reduction ratio|
 |:---:|:---:|
 | 100 |  16 |
 | Die |  8 |
 
-## 小範圍計算
-當我們在降維的影像中找到相似度較高的數值時，需還原為原本影像的大小進行小範圍計算相似度。因還原影像本身存在著誤差，故搜索範圍此設計為按照所縮小倍數進行設定。
+## small-scale calculations
+When we find a high similarity value in the reduced dimensionality image, we need to restore the size of the original image to calculate the similarity in a small range. Since there is an error in the restored image itself, the search range is designed to be set according to the reduction ratio.
 ```python
 get_small_matching_result(img, tmp, points, resize_ratio=8)
 ```
 
-## 計算相似度
-此次專案利用Texture Matching中 **Normalized Correlation Coeffiecient(NCC)** 來計算特徵相似度。
+## Calculate similarity
+This project uses **Normalized Correlation Coeffiecient(NCC)** in Texture Matching to calculate feature similarity.
 ```python
 get_matching_result(img, tmp, output_img):
 ```
 
-## 定義閾值
-若閾值定義過低，會取得不是我們所期望的結果；閾值定義過高，則會使有些結果無法辨識出來。因此定義適當閾值是在此專案中重要的問題之一。
-- 各影像的閾值
+## Define Threshold
+Defining appropriate thresholds is one of the important issues for this project.
+- The threshold of each image
     |  Data | threshold |
     | :---: |   :---:   |
     | 100-1 |    0.5    |
@@ -63,8 +64,8 @@ get_matching_result(img, tmp, output_img):
     | Die-1 |    0.79   |
     | Die-2 |    0.747  |
 
-## 結果視覺化
-最後利用opencv.rectangle()等視覺化工具將結果進行輸出，得到成功辨識後的影像結果。
+## Visualize
+Finally, use `opencv.rectangle()` and other visualization tools to output the result, and get the image result after the recognition is successful.
 - 100
     - cost time(s)
         |  Data | My method | OpenCV |

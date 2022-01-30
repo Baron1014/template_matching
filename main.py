@@ -116,7 +116,7 @@ def get_matching_result(img, tmp, output_img):
             inner = 0
             norm_tmp = 0
             norm_img = 0
-            # 計算符合template大小的原始影像平均值
+            # Calculate the average of the original images that fit the template size
             img_sum = [img[i+ti,j+tj] for ti in range(tmp.shape[0]) for tj in range(tmp.shape[1])]
             img_u = np.mean(img_sum)
             for ti in range(tmp.shape[0]):
@@ -130,7 +130,7 @@ def get_matching_result(img, tmp, output_img):
     return output_img
 
 
-# 計算小範圍 matching
+# Compute small matches
 def get_small_matching_result(img, tmp, points, resize_ratio=8):
     tmp_u = np.mean(tmp)
     origin_points = list()
@@ -144,7 +144,7 @@ def get_small_matching_result(img, tmp, points, resize_ratio=8):
                 inner = 0
                 norm_tmp = 0
                 norm_img = 0
-                # 計算符合template大小的原始影像平均值
+                # Calculate the average of the original images that fit the template size
                 img_sum = [img[i+ti,j+tj] for ti in range(tmp.shape[0]) for tj in range(tmp.shape[1])]
                 img_u = np.mean(img_sum)
                 for ti in range(tmp.shape[0]):
@@ -190,12 +190,12 @@ def find_opencv_local_max(res, thres, ignore_number=30):
     
 
 def show(image, Window_name="Image"):
-    # 顯示圖片
+    # shown image
     cv2.namedWindow(Window_name,0)
     cv2.resizeWindow(Window_name, 1000, 800)
     cv2.imshow(Window_name, image)
 
-    # 按下任意鍵則關閉所有視窗
+    # Press any key to close all windows
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
