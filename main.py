@@ -176,7 +176,7 @@ def find_opencv_local_max(res, thres, ignore_number=30):
                 ignore = ignore_number
         else:
             ignore-=1
-    # 按x先分群
+    # Group by x
     cluster = {i:[(0,0), 0] for i in c_x}
     for p in range(len(points[0])):
         y, x = points[0][p], points[1][p]
